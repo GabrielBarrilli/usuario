@@ -7,6 +7,8 @@ import com.barrilli.usuario.infra.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {
@@ -18,5 +20,13 @@ public class UsuarioService {
         Usuario usuario = usuarioConverter.paraUsuario(usuarioDTO);
 
         return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
+    }
+
+    public List<UsuarioDTO> buscarTodosUsuarios() {
+        return usuarioConverter.paraTodosUsuariosDTO(usuarioRepository.findAll());
+    }
+
+    public UsuarioDTO deleteById(Long id) {
+        return usuarioConverter.paraUsuarioDTO(usuarioRepository.deleteUsuarioById(id));
     }
 }
