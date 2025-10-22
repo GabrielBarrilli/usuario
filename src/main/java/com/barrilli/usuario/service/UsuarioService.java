@@ -6,6 +6,7 @@ import com.barrilli.usuario.infra.exceptions.ConflictException;
 import com.barrilli.usuario.infra.exceptions.ResourceNotFoundException;
 import com.barrilli.usuario.infra.model.Usuario;
 import com.barrilli.usuario.infra.repository.UsuarioRepository;
+import com.barrilli.usuario.infra.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioConverter usuarioConverter;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     public UsuarioDTO salvar(UsuarioDTO usuarioDTO) {
         emailExiste(usuarioDTO.getEmail());
@@ -57,5 +59,20 @@ public class UsuarioService {
         return usuarioRepository.findByEmail(email).orElseThrow(
                         () -> new ResourceNotFoundException("Usuário com email : '" + email + "' não encontrado")
                 );
+    }
+
+    public UsuarioDTO atualizarUsuario(String token, UsuarioDTO usuarioDTO) {
+        var email = jwtUtil.extrairEmailToken(token.substring(7));
+
+        usuarioDTO.setSenha(usuarioDTO.getSenha() != null ? passwordEncoder.encode(usuarioDTO.getSenha()) : null);
+
+        var usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Email não localizado ")
+                );
+
+        usuario = usuarioConverter.atualizaUsuario(usuarioDTO, usuario);
+
+        return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
     }
 }
