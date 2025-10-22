@@ -84,4 +84,8 @@ public class UsuarioConverter {
                 .numero(telefone.getNumero())
                 .build();
     }
+
+    public List<UsuarioDTO> paraTodosUsuariosDTO(List<Usuario> usuario) {
+        return usuario.stream().map(this::paraUsuarioDTO).toList();
+    }
 }
