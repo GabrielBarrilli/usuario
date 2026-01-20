@@ -1,10 +1,14 @@
 package com.barrilli.usuario.service;
 
+import com.barrilli.usuario.controller.dto.EnderecoDTO;
+import com.barrilli.usuario.controller.dto.TelefoneDTO;
 import com.barrilli.usuario.controller.dto.UsuarioDTO;
 import com.barrilli.usuario.converter.UsuarioConverter;
 import com.barrilli.usuario.infra.exceptions.ConflictException;
 import com.barrilli.usuario.infra.exceptions.ResourceNotFoundException;
 import com.barrilli.usuario.infra.model.Usuario;
+import com.barrilli.usuario.infra.repository.EnderecoRepository;
+import com.barrilli.usuario.infra.repository.TelefoneRepository;
 import com.barrilli.usuario.infra.repository.UsuarioRepository;
 import com.barrilli.usuario.infra.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +25,8 @@ public class UsuarioService {
     private final UsuarioConverter usuarioConverter;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final EnderecoRepository enderecoRepository;
+    private final TelefoneRepository telefoneRepository;
 
     public UsuarioDTO salvar(UsuarioDTO usuarioDTO) {
         emailExiste(usuarioDTO.getEmail());
@@ -74,5 +80,27 @@ public class UsuarioService {
         usuario = usuarioConverter.atualizaUsuario(usuarioDTO, usuario);
 
         return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
+    }
+
+    public EnderecoDTO atualizarEndereco(Long enderecoId, EnderecoDTO enderecoDTO) {
+        var enderecoAntigo = enderecoRepository.findById(enderecoId)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Não foi encontrado endereço com id " + enderecoId)
+                );
+
+        var endereco = usuarioConverter.atualizarEndereco(enderecoDTO, enderecoAntigo);
+
+        return usuarioConverter.paraEnderecoDTO(enderecoRepository.save(endereco));
+    }
+
+    public TelefoneDTO atualizarTelefone(Long telefoneId, TelefoneDTO telefoneDTO) {
+        var telefoneAntigo = telefoneRepository.findById(telefoneId)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Não foi encontrado telefone com id " + telefoneId)
+                );
+
+        var telefone = usuarioConverter.atualizarTelefone(telefoneDTO, telefoneAntigo);
+
+        return usuarioConverter.paraTelefoneDTO(telefoneRepository.save(telefone));
     }
 }

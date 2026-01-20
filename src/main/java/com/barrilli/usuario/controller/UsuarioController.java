@@ -1,5 +1,7 @@
 package com.barrilli.usuario.controller;
 
+import com.barrilli.usuario.controller.dto.EnderecoDTO;
+import com.barrilli.usuario.controller.dto.TelefoneDTO;
 import com.barrilli.usuario.controller.dto.UsuarioDTO;
 import com.barrilli.usuario.infra.model.Usuario;
 import com.barrilli.usuario.infra.security.JwtUtil;
@@ -60,5 +62,15 @@ public class UsuarioController {
     public ResponseEntity<Void> deleteUsuarioPorEmail(@PathVariable String email) {
         usuarioService.deleteByEmail(email);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/endereco")
+    public ResponseEntity<EnderecoDTO> atualizaEndereco(@RequestParam("id") Long enderecoId, @RequestBody EnderecoDTO enderecoDTO) {
+        return ResponseEntity.ok(usuarioService.atualizarEndereco(enderecoId, enderecoDTO));
+    }
+
+    @PutMapping("/telefone")
+    public ResponseEntity<TelefoneDTO> atualizaTelefone(@RequestParam("telefoneId") Long telefoneId, @RequestBody TelefoneDTO telefoneDTO) {
+        return ResponseEntity.ok(usuarioService.atualizarTelefone(telefoneId, telefoneDTO));
     }
 }
