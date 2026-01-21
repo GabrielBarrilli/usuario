@@ -1,5 +1,7 @@
 package com.barrilli.usuario.controller;
 
+import com.barrilli.usuario.controller.dto.EnderecoDTO;
+import com.barrilli.usuario.controller.dto.TelefoneDTO;
 import com.barrilli.usuario.controller.dto.UsuarioDTO;
 import com.barrilli.usuario.infra.model.Usuario;
 import com.barrilli.usuario.infra.security.JwtUtil;
@@ -35,12 +37,18 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.salvar(usuarioDTO));
     }
 
+    @PutMapping
+    public ResponseEntity<UsuarioDTO> atualizaUsuario(@RequestBody UsuarioDTO usuarioDTO,
+                                                      @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(usuarioService.atualizarUsuario(token, usuarioDTO));
+    }
+
     @GetMapping
     public ResponseEntity<List<UsuarioDTO>> buscarTodosUsuarios() {
         return ResponseEntity.ok(usuarioService.buscarTodosUsuarios());
     }
 
-    @GetMapping
+    @GetMapping("/email")
     public ResponseEntity<Usuario> buscaUsuarioPorEmail (@RequestParam String email) {
         return ResponseEntity.ok(usuarioService.findUsuarioByEmail(email));
     }
@@ -54,5 +62,15 @@ public class UsuarioController {
     public ResponseEntity<Void> deleteUsuarioPorEmail(@PathVariable String email) {
         usuarioService.deleteByEmail(email);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/endereco")
+    public ResponseEntity<EnderecoDTO> atualizaEndereco(@RequestParam("id") Long enderecoId, @RequestBody EnderecoDTO enderecoDTO) {
+        return ResponseEntity.ok(usuarioService.atualizarEndereco(enderecoId, enderecoDTO));
+    }
+
+    @PutMapping("/telefone")
+    public ResponseEntity<TelefoneDTO> atualizaTelefone(@RequestParam("telefoneId") Long telefoneId, @RequestBody TelefoneDTO telefoneDTO) {
+        return ResponseEntity.ok(usuarioService.atualizarTelefone(telefoneId, telefoneDTO));
     }
 }

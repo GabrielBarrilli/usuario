@@ -1,11 +1,16 @@
 package com.barrilli.usuario.service;
 
+import com.barrilli.usuario.controller.dto.EnderecoDTO;
+import com.barrilli.usuario.controller.dto.TelefoneDTO;
 import com.barrilli.usuario.controller.dto.UsuarioDTO;
 import com.barrilli.usuario.converter.UsuarioConverter;
 import com.barrilli.usuario.infra.exceptions.ConflictException;
 import com.barrilli.usuario.infra.exceptions.ResourceNotFoundException;
 import com.barrilli.usuario.infra.model.Usuario;
+import com.barrilli.usuario.infra.repository.EnderecoRepository;
+import com.barrilli.usuario.infra.repository.TelefoneRepository;
 import com.barrilli.usuario.infra.repository.UsuarioRepository;
+import com.barrilli.usuario.infra.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +24,9 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioConverter usuarioConverter;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final EnderecoRepository enderecoRepository;
+    private final TelefoneRepository telefoneRepository;
 
     public UsuarioDTO salvar(UsuarioDTO usuarioDTO) {
         emailExiste(usuarioDTO.getEmail());
@@ -57,5 +65,42 @@ public class UsuarioService {
         return usuarioRepository.findByEmail(email).orElseThrow(
                         () -> new ResourceNotFoundException("Usuário com email : '" + email + "' não encontrado")
                 );
+    }
+
+    public UsuarioDTO atualizarUsuario(String token, UsuarioDTO usuarioDTO) {
+        var email = jwtUtil.extrairEmailToken(token.substring(7));
+
+        usuarioDTO.setSenha(usuarioDTO.getSenha() != null ? passwordEncoder.encode(usuarioDTO.getSenha()) : null);
+
+        var usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Email não localizado ")
+                );
+
+        usuario = usuarioConverter.atualizaUsuario(usuarioDTO, usuario);
+
+        return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
+    }
+
+    public EnderecoDTO atualizarEndereco(Long enderecoId, EnderecoDTO enderecoDTO) {
+        var enderecoAntigo = enderecoRepository.findById(enderecoId)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Não foi encontrado endereço com id " + enderecoId)
+                );
+
+        var endereco = usuarioConverter.atualizarEndereco(enderecoDTO, enderecoAntigo);
+
+        return usuarioConverter.paraEnderecoDTO(enderecoRepository.save(endereco));
+    }
+
+    public TelefoneDTO atualizarTelefone(Long telefoneId, TelefoneDTO telefoneDTO) {
+        var telefoneAntigo = telefoneRepository.findById(telefoneId)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Não foi encontrado telefone com id " + telefoneId)
+                );
+
+        var telefone = usuarioConverter.atualizarTelefone(telefoneDTO, telefoneAntigo);
+
+        return usuarioConverter.paraTelefoneDTO(telefoneRepository.save(telefone));
     }
 }
