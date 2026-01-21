@@ -103,4 +103,32 @@ public class UsuarioService {
 
         return usuarioConverter.paraTelefoneDTO(telefoneRepository.save(telefone));
     }
+
+    public EnderecoDTO cadastraEndereco(String token, EnderecoDTO enderecoDTO) {
+        String email = jwtUtil.extrairEmailToken(token.substring(7));
+        var usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Email não localizado " + email)
+                );
+
+        var endereco = usuarioConverter.paraEnderecoEntity(enderecoDTO, usuario.getId());
+
+        var enderecoEntity = enderecoRepository.save(endereco);
+
+        return usuarioConverter.paraEnderecoDTO(enderecoEntity);
+    }
+
+    public TelefoneDTO cadastraTelefone(String token, TelefoneDTO telefoneDTO) {
+        String email = jwtUtil.extrairEmailToken(token.substring(7));
+        var usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Email não localizado " + email)
+                );
+
+        var telefone = usuarioConverter.paraTelefoneEntity(telefoneDTO, usuario.getId());
+
+        var telefoneEntity = telefoneRepository.save(telefone);
+
+        return usuarioConverter.paraTelefoneDTO(telefoneEntity);
+    }
 }
