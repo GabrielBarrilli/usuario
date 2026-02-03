@@ -63,8 +63,8 @@ public class UsuarioService {
 
     public Usuario findUsuarioByEmail(String email) {
         return usuarioRepository.findByEmail(email).orElseThrow(
-                        () -> new ResourceNotFoundException("Usuário com email : '" + email + "' não encontrado")
-                );
+                () -> new ResourceNotFoundException("Usuário com email : '" + email + "' não encontrado")
+        );
     }
 
     public UsuarioDTO atualizarUsuario(String token, UsuarioDTO usuarioDTO) {

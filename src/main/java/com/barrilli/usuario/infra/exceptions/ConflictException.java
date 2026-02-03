@@ -1,6 +1,6 @@
 package com.barrilli.usuario.infra.exceptions;
 
-public class ConflictException extends RuntimeException{
+public class ConflictException extends RuntimeException {
 
     public ConflictException(String mensagem) {
         super(mensagem);
