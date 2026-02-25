@@ -1,14 +1,11 @@
 package com.barrilli.usuario.controller.dto;
 
-import lombok.*;
+import lombok.Builder;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class TelefoneDTO {
-    private Long id;
-    private String numero;
-    private String ddd;
+public record TelefoneDTO(Long id,
+                          String numero,
+                          String ddd) {
+
+    @Builder
+    public TelefoneDTO {}
 }
