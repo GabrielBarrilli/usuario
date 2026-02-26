@@ -29,9 +29,18 @@ public class UsuarioService {
     private final TelefoneRepository telefoneRepository;
 
     public UsuarioDTO salvar(UsuarioDTO usuarioDTO) {
-        emailExiste(usuarioDTO.getEmail());
-        usuarioDTO.setSenha(passwordEncoder.encode(usuarioDTO.getSenha()));
-        Usuario usuario = usuarioConverter.paraUsuario(usuarioDTO);
+        emailExiste(usuarioDTO.email());
+
+        String senhaCodificada = usuarioDTO.senha() != null ? passwordEncoder.encode(usuarioDTO.senha()) : null;
+        UsuarioDTO dtoComSenha = new UsuarioDTO(
+                usuarioDTO.nome(),
+                usuarioDTO.email(),
+                senhaCodificada,
+                usuarioDTO.enderecos(),
+                usuarioDTO.telefones()
+        );
+
+        Usuario usuario = usuarioConverter.paraUsuario(dtoComSenha);
         return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
     }
 
@@ -70,14 +79,21 @@ public class UsuarioService {
     public UsuarioDTO atualizarUsuario(String token, UsuarioDTO usuarioDTO) {
         var email = jwtUtil.extrairEmailToken(token.substring(7));
 
-        usuarioDTO.setSenha(usuarioDTO.getSenha() != null ? passwordEncoder.encode(usuarioDTO.getSenha()) : null);
+        String senha = usuarioDTO.senha() != null ? passwordEncoder.encode(usuarioDTO.senha()) : null;
+        UsuarioDTO dtoAtualizado = new UsuarioDTO(
+                usuarioDTO.nome(),
+                usuarioDTO.email(),
+                senha,
+                usuarioDTO.enderecos(),
+                usuarioDTO.telefones()
+        );
 
         var usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(
                         () -> new ResourceNotFoundException("Email não localizado ")
                 );
 
-        usuario = usuarioConverter.atualizaUsuario(usuarioDTO, usuario);
+        usuario = usuarioConverter.atualizaUsuario(dtoAtualizado, usuario);
 
         return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
     }

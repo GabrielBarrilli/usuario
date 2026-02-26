@@ -1,19 +1,15 @@
 package com.barrilli.usuario.controller.dto;
 
-import lombok.*;
+import lombok.Builder;
 
 import java.util.List;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class UsuarioDTO {
+public record UsuarioDTO(String nome,
+                         String email,
+                         String senha,
+                         List<EnderecoDTO> enderecos,
+                         List<TelefoneDTO> telefones) {
 
-    private String nome;
-    private String email;
-    private String senha;
-    private List<EnderecoDTO> enderecos;
-    private List<TelefoneDTO> telefones;
+    @Builder
+    public UsuarioDTO {}
 }
