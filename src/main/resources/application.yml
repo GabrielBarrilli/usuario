@@ -6,3 +6,9 @@ spring:
     password: ${PASS_DB}
     url: ${URL_DB}
     driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+  sql:
+    init:
+      mode: always

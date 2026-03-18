@@ -11,5 +11,6 @@ public record UsuarioDTO(String nome,
                          List<TelefoneDTO> telefones) {
 
     @Builder
-    public UsuarioDTO {}
+    public UsuarioDTO {
+    }
 }
