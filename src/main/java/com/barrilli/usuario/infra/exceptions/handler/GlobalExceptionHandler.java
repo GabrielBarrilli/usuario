@@ -1,6 +1,7 @@
 package com.barrilli.usuario.infra.exceptions.handler;
 
 import com.barrilli.usuario.infra.exceptions.ConflictException;
+import com.barrilli.usuario.infra.exceptions.IllegalArgumentException;
 import com.barrilli.usuario.infra.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +48,13 @@ public class GlobalExceptionHandler {
         log.error("Erro não tratado", ex);
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
                 "Ocorreu um erro interno. Tente novamente mais tarde.", request);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex,
+                                                               HttpServletRequest request) {
+        log.error("Erro não tratado", ex);
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
 
     private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message,

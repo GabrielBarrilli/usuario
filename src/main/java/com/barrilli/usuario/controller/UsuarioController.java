@@ -3,9 +3,11 @@ package com.barrilli.usuario.controller;
 import com.barrilli.usuario.controller.dto.EnderecoDTO;
 import com.barrilli.usuario.controller.dto.TelefoneDTO;
 import com.barrilli.usuario.controller.dto.UsuarioDTO;
+import com.barrilli.usuario.controller.dto.response.ViaCepResponse;
 import com.barrilli.usuario.infra.model.Usuario;
 import com.barrilli.usuario.infra.security.JwtUtil;
 import com.barrilli.usuario.service.UsuarioService;
+import com.barrilli.usuario.service.ViaCepService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +25,7 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final ViaCepService viaCepService;
 
     @PostMapping("/login")
     public String login(@RequestBody UsuarioDTO dto) {
@@ -51,6 +54,11 @@ public class UsuarioController {
     @GetMapping("/email")
     public ResponseEntity<Usuario> buscaUsuarioPorEmail(@RequestParam String email) {
         return ResponseEntity.ok(usuarioService.findUsuarioByEmail(email));
+    }
+
+    @GetMapping("/endereco/{cep}")
+    public ResponseEntity<ViaCepResponse> buscaEndereco(@PathVariable String cep) {
+        return ResponseEntity.ok(viaCepService.buscaDadosEndereco(cep));
     }
 
     @DeleteMapping("/{id}")
