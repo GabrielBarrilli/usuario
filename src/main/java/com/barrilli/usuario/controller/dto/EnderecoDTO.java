@@ -11,5 +11,6 @@ public record EnderecoDTO(Long id,
                           String cep) {
 
     @Builder
-    public EnderecoDTO {}
+    public EnderecoDTO {
+    }
 }

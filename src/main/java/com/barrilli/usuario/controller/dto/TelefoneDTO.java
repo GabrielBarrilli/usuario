@@ -7,5 +7,6 @@ public record TelefoneDTO(Long id,
                           String ddd) {
 
     @Builder
-    public TelefoneDTO {}
+    public TelefoneDTO {
+    }
 }
