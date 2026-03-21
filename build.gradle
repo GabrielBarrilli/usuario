@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.6'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.sonarqube' version '4.4.1.3373'
 }
 
 group = 'com.barrilli'
@@ -52,4 +53,12 @@ dependencyManagement {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "usuario"
+        property "sonar.host.url", "http://localhost:9000"
+        property "sonar.login", "sqa_e96443bdb28c7c9e9005f06c319be498440c8e70"
+    }
 }
