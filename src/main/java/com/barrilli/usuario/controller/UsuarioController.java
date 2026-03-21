@@ -11,8 +11,6 @@ import com.barrilli.usuario.service.ViaCepService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,11 +26,8 @@ public class UsuarioController {
     private final ViaCepService viaCepService;
 
     @PostMapping("/login")
-    public String login(@RequestBody UsuarioDTO dto) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(dto.email(), dto.senha())
-        );
-        return "Bearer " + jwtUtil.generateToken(authentication.getName());
+    public ResponseEntity<String> login(@RequestBody UsuarioDTO dto) {
+        return ResponseEntity.ok(usuarioService.autenticarUsuario(dto));
     }
 
     @PostMapping
