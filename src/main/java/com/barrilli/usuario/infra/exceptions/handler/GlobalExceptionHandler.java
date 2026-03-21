@@ -3,6 +3,7 @@ package com.barrilli.usuario.infra.exceptions.handler;
 import com.barrilli.usuario.infra.exceptions.ConflictException;
 import com.barrilli.usuario.infra.exceptions.IllegalArgumentException;
 import com.barrilli.usuario.infra.exceptions.ResourceNotFoundException;
+import com.barrilli.usuario.infra.exceptions.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -55,6 +56,13 @@ public class GlobalExceptionHandler {
                                                                HttpServletRequest request) {
         log.error("Erro não tratado", ex);
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException ex,
+                                                            HttpServletRequest request) {
+        log.error("Erro de autenticação", ex);
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request);
     }
 
     private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message,
