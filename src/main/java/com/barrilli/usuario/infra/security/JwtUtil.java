@@ -3,6 +3,7 @@ package com.barrilli.usuario.infra.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -12,8 +13,15 @@ import java.util.Date;
 @Service
 public class JwtUtil {
 
-    // Chave secreta usada para assinar e verificar tokens JWT
-    private final String secretKey = "c3VhLWNoYXZlLXNlY3JldGEtc3VwZXItc2VndXJhLXF1ZS1kZXZlLXNlci1iZW0tbG9uZ2E=";
+    /**
+     * Chave secreta Base64 para assinar/verificar tokens JWT.
+     * Deve ser configurada via variável de ambiente JWT_SECRET ou em application.yml.
+     */
+    private final String secretKey;
+
+    public JwtUtil(@Value("${jwt.secret}") String secretKey) {
+        this.secretKey = secretKey;
+    }
 
     private SecretKey getSecretKey() {
         byte[] key = Base64.getDecoder().decode(secretKey);
