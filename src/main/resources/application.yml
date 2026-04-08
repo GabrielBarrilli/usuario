@@ -2,9 +2,9 @@ spring:
   application:
     name: usuario
   datasource:
-    username: ${USER_DB}
-    password: ${PASS_DB}
-    url: ${URL_DB}
+    url: ${USUARIO_DB_URL}
+    username: ${USUARIO_DB_USER}
+    password: ${USUARIO_DB_PASS}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -12,3 +12,11 @@ spring:
   sql:
     init:
       mode: always
+
+jwt:
+  # Base64-encoded secret for JWT signing; override with env var JWT_SECRET in real deployments
+  secret: ${JWT_SECRET:ZGV2LWxvY2FsLXNlY3JldC1wbGVhc2Utc2V0}
+
+via-cep:
+  # Defaults to public ViaCEP API if env var not provided
+  url: ${VIA_CEP_URL:https://viacep.com.br/ws}

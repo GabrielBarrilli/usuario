@@ -7,6 +7,8 @@ services:
       SPRING_DATASOURCE_URL: ${USUARIO_DB_URL}
       SPRING_DATASOURCE_USERNAME: ${USUARIO_DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${USUARIO_DB_PASS}
+      JWT_SECRET: ${JWT_SECRET}
+      VIA_CEP_URL: ${VIA_CEP_URL}
     depends_on:
       db:
         condition: service_healthy
