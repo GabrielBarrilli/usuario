@@ -1,6 +1,10 @@
 package com.barrilli.usuario.infra.repository;
 
+import com.barrilli.usuario.controller.dto.EnderecoDTO;
+import com.barrilli.usuario.controller.dto.TelefoneDTO;
+import com.barrilli.usuario.converter.UsuarioConverter;
 import com.barrilli.usuario.infra.model.Endereco;
+import com.barrilli.usuario.infra.model.Telefone;
 import com.barrilli.usuario.infra.model.Usuario;
 import com.barrilli.usuario.infra.security.UserDetailsServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -24,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
-@Import(UserDetailsServiceImpl.class)
+@Import({UserDetailsServiceImpl.class, UsuarioConverter.class})
 class UsuarioRepositoryTest {
 
     @Container
@@ -42,6 +46,12 @@ class UsuarioRepositoryTest {
 
     @Autowired
     TestEntityManager entityManager;
+
+    @Autowired
+    TelefoneRepository telefoneRepository;
+
+    @Autowired
+    UsuarioConverter converter;
 
     private Usuario salva(String email) {
         return usuarioRepository.save(Usuario.builder().nome("Ana").email(email).senha("$2a$hash").build());
@@ -91,5 +101,28 @@ class UsuarioRepositoryTest {
         assertThat(userDetails.getPassword()).isEqualTo("$2a$hash");
         assertThatThrownBy(() -> userDetailsService.loadUserByUsername("x@t.com"))
                 .isInstanceOf(UsernameNotFoundException.class);
+    }
+
+    @Test
+    void atualizarEnderecoETelefoneMantemOUsuarioIdNoBanco() {
+        // Mesmo caminho do UsuarioService.atualizarEndereco/atualizarTelefone: busca, converte e salva
+        var dono = salva("ana@t.com");
+        var endereco = enderecoRepository.save(converter.paraEnderecoEntity(EnderecoDTO.builder().rua("Rua A").cidade("Recife").build(), dono.getId()));
+        var telefone = telefoneRepository.save(converter.paraTelefoneEntity(TelefoneDTO.builder().ddd("81").numero("999").build(), dono.getId()));
+        entityManager.flush();
+        entityManager.clear();
+
+        enderecoRepository.saveAndFlush(converter.atualizarEndereco(EnderecoDTO.builder().cidade("Olinda").build(),
+                enderecoRepository.findById(endereco.getId()).orElseThrow()));
+        telefoneRepository.saveAndFlush(converter.atualizarTelefone(TelefoneDTO.builder().numero("888").build(),
+                telefoneRepository.findById(telefone.getId()).orElseThrow()));
+        entityManager.clear(); // relê do banco, não do cache
+
+        var enderecoNoBanco = enderecoRepository.findById(endereco.getId()).orElseThrow();
+        var telefoneNoBanco = telefoneRepository.findById(telefone.getId()).orElseThrow();
+        assertThat(enderecoNoBanco.getCidade()).isEqualTo("Olinda");
+        assertThat(enderecoNoBanco.getUsuarioId()).isEqualTo(dono.getId());
+        assertThat(telefoneNoBanco.getNumero()).isEqualTo("888");
+        assertThat(telefoneNoBanco.getUsuarioId()).isEqualTo(dono.getId());
     }
 }
