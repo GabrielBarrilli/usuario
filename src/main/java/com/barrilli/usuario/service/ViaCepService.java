@@ -2,6 +2,7 @@ package com.barrilli.usuario.service;
 
 import com.barrilli.usuario.controller.dto.response.ViaCepResponse;
 import com.barrilli.usuario.infra.clients.ViaCepClient;
+import com.barrilli.usuario.infra.exceptions.IllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
