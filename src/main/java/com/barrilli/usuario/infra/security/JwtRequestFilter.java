@@ -1,9 +1,6 @@
 package com.barrilli.usuario.infra.security;
 
-import com.barrilli.usuario.infra.exceptions.ResourceNotFoundException;
-import com.barrilli.usuario.infra.exceptions.UnauthorizedException;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -31,16 +29,17 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     // Método chamado uma vez por requisição para processar o filtro
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
-        try {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws ServletException, IOException {
 
-            // Obtém o valor do header "Authorization" da requisição
-            final String authorizationHeader = request.getHeader("Authorization");
+        // Obtém o valor do header "Authorization" da requisição
+        final String authorizationHeader = request.getHeader("Authorization");
 
-            // Verifica se o cabeçalho existe e começa com "Bearer "
-            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                // Extrai o token JWT do cabeçalho
-                final String token = authorizationHeader.substring(7);
+        // Verifica se o cabeçalho existe e começa com "Bearer "
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            // Extrai o token JWT do cabeçalho
+            final String token = authorizationHeader.substring(7);
+            try {
                 // Extrai o nome de usuário do token JWT
                 final String username = jwtUtil.extrairEmailToken(token);
 
@@ -57,15 +56,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
                 }
+            } catch (JwtException | IllegalArgumentException | UsernameNotFoundException e) {
+                // Token expirado, malformado, com assinatura inválida ou de usuário apagado.
+                // Exceção lançada num filtro não chega ao GlobalExceptionHandler, então responde aqui.
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
             }
-
-            // Continua a cadeia de filtros, permitindo que a requisição prossiga
-            chain.doFilter(request, response);
-
-        } catch (ExpiredJwtException | MalformedJwtException e) {
-            throw new UnauthorizedException("Erro token inválido ou expirado " + e.getCause());
-        } catch (ServletException | IOException  e) {
-            throw new ResourceNotFoundException("Erro ao realizar autenticação " + e);
         }
+
+        // Continua a cadeia de filtros, permitindo que a requisição prossiga
+        chain.doFilter(request, response);
     }
 }
