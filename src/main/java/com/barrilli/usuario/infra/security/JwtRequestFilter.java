@@ -56,7 +56,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
                 }
-            } catch (JwtException | UsernameNotFoundException e) {
+            } catch (JwtException | IllegalArgumentException | UsernameNotFoundException e) {
                 // Token expirado, malformado, com assinatura inválida ou de usuário apagado.
                 // Exceção lançada num filtro não chega ao GlobalExceptionHandler, então responde aqui.
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

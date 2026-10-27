@@ -10,6 +10,9 @@ import com.barrilli.usuario.infra.security.SecurityConfig;
 import com.barrilli.usuario.service.UsuarioService;
 import com.barrilli.usuario.service.ViaCepService;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,6 +110,54 @@ class UsuarioControllerTest {
 
         mockMvc.perform(get("/v1/usuario/email").param("email", "ana@t.com").header("Authorization", "Bearer expirado"))
                 .andExpect(status().isUnauthorized());
+        verifyNoInteractions(usuarioService);
+    }
+
+    @Test
+    void tokenComAssinaturaFalsaDevolve401() throws Exception {
+        when(jwtUtil.extrairEmailToken("forjado")).thenThrow(new SignatureException("assinatura inválida"));
+
+        mockMvc.perform(get("/v1/usuario/email").param("email", "ana@t.com").header("Authorization", "Bearer forjado"))
+                .andExpect(status().isUnauthorized());
+        verifyNoInteractions(usuarioService);
+    }
+
+    @Test
+    void tokenMalformadoDevolve401() throws Exception {
+        when(jwtUtil.extrairEmailToken("lixo")).thenThrow(new MalformedJwtException("malformado"));
+
+        mockMvc.perform(get("/v1/usuario/email").param("email", "ana@t.com").header("Authorization", "Bearer lixo"))
+                .andExpect(status().isUnauthorized());
+        verifyNoInteractions(usuarioService);
+    }
+
+    @Test
+    void tokenVazioDevolve401() throws Exception {
+        // É o que o JwtUtil real lança para "" (ver JwtUtilTest.tokenVazioLancaIllegalArgument)
+        when(jwtUtil.extrairEmailToken("")).thenThrow(new IllegalArgumentException("JWT String argument cannot be null or empty."));
+
+        mockMvc.perform(get("/v1/usuario/email").param("email", "ana@t.com").header("Authorization", "Bearer "))
+                .andExpect(status().isUnauthorized());
+        verifyNoInteractions(usuarioService);
+    }
+
+    @Test
+    void tokenDeUsuarioApagadoDevolve401() throws Exception {
+        when(jwtUtil.extrairEmailToken("apagado")).thenReturn("apagado@t.com");
+        when(userDetailsService.loadUserByUsername("apagado@t.com")).thenThrow(new UsernameNotFoundException("apagado@t.com"));
+
+        mockMvc.perform(get("/v1/usuario/email").param("email", "apagado@t.com").header("Authorization", "Bearer apagado"))
+                .andExpect(status().isUnauthorized());
+        verifyNoInteractions(usuarioService);
+    }
+
+    @Test
+    void rotasPublicasSoCadastroLoginECep() throws Exception {
+        // Sem token: cadastro, login e consulta de CEP passam; GET /v1/auth (regra morta removida) e o resto dão 401
+        mockMvc.perform(get("/v1/auth")).andExpect(status().isUnauthorized());
+        mockMvc.perform(put("/v1/usuario").contentType(JSON).content("{}")).andExpect(status().isUnauthorized());
+        mockMvc.perform(delete("/v1/usuario/1")).andExpect(status().isUnauthorized());
+        mockMvc.perform(post("/v1/usuario/endereco").contentType(JSON).content("{}")).andExpect(status().isUnauthorized());
         verifyNoInteractions(usuarioService);
     }
 

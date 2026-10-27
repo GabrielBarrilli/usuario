@@ -44,7 +44,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/v3/api-docs/**" , "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/v1/usuario/login").permitAll() // Permite acesso ao endpoint de login sem autenticação
-                        .requestMatchers(HttpMethod.GET, "/v1/auth").permitAll()// Permite acesso ao endpoint GET /auth sem autenticação
                         .requestMatchers(HttpMethod.POST, "/v1/usuario").permitAll() // Permite acesso ao endpoint POST /usuario sem autenticação
                         .requestMatchers(HttpMethod.GET, "/v1/usuario/endereco/**").permitAll()
                         .requestMatchers("/v1/usuario/**").authenticated() // Requer autenticação para qualquer endpoint que comece com /usuario/

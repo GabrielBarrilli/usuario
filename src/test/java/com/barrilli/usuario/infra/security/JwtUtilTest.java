@@ -2,6 +2,7 @@ package com.barrilli.usuario.infra.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,17 @@ class JwtUtilTest {
                 .compact();
 
         assertThatThrownBy(() -> jwtUtil.extrairEmailToken(expirado)).isInstanceOf(ExpiredJwtException.class);
+    }
+
+    @Test
+    void tokenMalformadoLancaMalformedJwt() {
+        assertThatThrownBy(() -> jwtUtil.extrairEmailToken("lixo")).isInstanceOf(MalformedJwtException.class);
+    }
+
+    @Test
+    void tokenVazioLancaIllegalArgument() {
+        // Não é JwtException: o JwtRequestFilter precisa capturar IllegalArgumentException também
+        assertThatThrownBy(() -> jwtUtil.extrairEmailToken("")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
