@@ -152,8 +152,9 @@ class UsuarioControllerTest {
     }
 
     @Test
-    void rotasPublicasSoCadastroLoginECep() throws Exception {
-        // Sem token: cadastro, login e consulta de CEP passam; GET /v1/auth (regra morta removida) e o resto dão 401
+    void rotasForaDaListaPublicaExigemToken() throws Exception {
+        // Sem token, o que não é cadastro, login ou CEP dá 401 (inclusive GET /v1/auth, regra morta removida).
+        // Os públicos passando sem token estão em loginSemTokenDevolveOJwt, cadastroEPublicoENaoDevolveASenha e buscaCepEPublica
         mockMvc.perform(get("/v1/auth")).andExpect(status().isUnauthorized());
         mockMvc.perform(put("/v1/usuario").contentType(JSON).content("{}")).andExpect(status().isUnauthorized());
         mockMvc.perform(delete("/v1/usuario/1")).andExpect(status().isUnauthorized());
