@@ -4,7 +4,6 @@ import com.barrilli.usuario.controller.dto.EnderecoDTO;
 import com.barrilli.usuario.controller.dto.TelefoneDTO;
 import com.barrilli.usuario.controller.dto.UsuarioDTO;
 import com.barrilli.usuario.controller.dto.response.ViaCepResponse;
-import com.barrilli.usuario.infra.model.Usuario;
 import com.barrilli.usuario.infra.security.JwtUtil;
 import com.barrilli.usuario.service.UsuarioService;
 import com.barrilli.usuario.service.ViaCepService;
@@ -12,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/v1/usuario")
@@ -41,13 +38,8 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.atualizarUsuario(token, usuarioDTO));
     }
 
-    @GetMapping
-    public ResponseEntity<List<UsuarioDTO>> buscarTodosUsuarios() {
-        return ResponseEntity.ok(usuarioService.buscarTodosUsuarios());
-    }
-
     @GetMapping("/email")
-    public ResponseEntity<Usuario> buscaUsuarioPorEmail(@RequestParam String email) {
+    public ResponseEntity<UsuarioDTO> buscaUsuarioPorEmail(@RequestParam String email) {
         return ResponseEntity.ok(usuarioService.findUsuarioByEmail(email));
     }
 
@@ -56,12 +48,12 @@ public class UsuarioController {
         return ResponseEntity.ok(viaCepService.buscaDadosEndereco(cep));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id:\\d+}")
     public ResponseEntity<UsuarioDTO> deleteUsuarioPorId(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.deleteById(id));
     }
 
-    @DeleteMapping("/{email}")
+    @DeleteMapping("/email/{email}")
     public ResponseEntity<Void> deleteUsuarioPorEmail(@PathVariable String email) {
         usuarioService.deleteByEmail(email);
         return ResponseEntity.ok().build();

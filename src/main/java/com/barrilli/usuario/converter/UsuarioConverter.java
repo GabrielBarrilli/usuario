@@ -93,10 +93,6 @@ public class UsuarioConverter {
                 .build();
     }
 
-    public List<UsuarioDTO> paraTodosUsuariosDTO(List<Usuario> usuario) {
-        return usuario.stream().map(this::paraUsuarioDTO).toList();
-    }
-
     public Usuario atualizaUsuario(UsuarioDTO usuarioDTO, Usuario usuario) {
         return Usuario.builder()
                 .nome(usuarioDTO.nome() != null ? usuarioDTO.nome() : usuario.getNome())
