@@ -20,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -210,19 +209,6 @@ class UsuarioServiceTest {
         when(usuarioConverter.paraUsuarioDTO(deletado)).thenReturn(esperado);
 
         UsuarioDTO resultado = usuarioService.deleteById(1L);
-
-        assertThat(resultado).isEqualTo(esperado);
-    }
-
-    @Test
-    void buscarTodosUsuarios_deveRetornarListaConvertida() {
-        List<Usuario> usuarios = List.of(Usuario.builder().id(1L).build());
-        List<UsuarioDTO> esperado = List.of(UsuarioDTO.builder().nome("n").build());
-
-        when(usuarioRepository.findAll()).thenReturn(usuarios);
-        when(usuarioConverter.paraTodosUsuariosDTO(usuarios)).thenReturn(esperado);
-
-        List<UsuarioDTO> resultado = usuarioService.buscarTodosUsuarios();
 
         assertThat(resultado).isEqualTo(esperado);
     }

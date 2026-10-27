@@ -15,3 +15,5 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET}
+
+via-cep.url: ${VIA_CEP_URL:https://viacep.com.br}
